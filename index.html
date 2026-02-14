@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>For Kuchu 💕</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Poppins:wght@300;400;600&display=swap');
+
+        .gradient-background {
+            background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 50%, #ff9a9e 100%);
+            min-height: 100vh;
+        }
+        .heart-backdrop {
+            position: relative;
+        }
+        .heart-backdrop::before {
+            content: '💕';
+            position: absolute;
+            font-size: 80px;
+            opacity: 0.3;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 0;
+            pointer-events: none;
+            animation: heartbeat 1.5s ease-in-out infinite;
+        }
+        @keyframes heartbeat {
+            0%, 100% { transform: translate(-50%, -50%) scale(1); }
+            50% { transform: translate(-50%, -50%) scale(1.1); }
+        }
+        .heart-backdrop-strong::before {
+            font-size: 120px;
+            opacity: 0.5;
+        }
+        .fancy-text {
+            font-family: 'Playfair Display', serif;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+        .body-text {
+            font-family: 'Poppins', sans-serif;
+        }
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .black-screen {
+            background: #000;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        .gif-container {
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 10px 40px rgba(252, 182, 159, 0.4);
+            border: 3px solid #ff9a9e;
+        }
+        .button-glow {
+            box-shadow: 0 0 20px rgba(255, 154, 158, 0.6);
+            transition: all 0.3s ease;
+        }
+        .button-glow:hover {
+            box-shadow: 0 0 30px rgba(255, 154, 158, 0.8);
+            transform: scale(1.05);
+        }
+    </style>
+</head>
+<body class="gradient-background">
+    <div id="main-container" class="flex flex-col items-center justify-center min-h-screen p-4 fade-in">
+        <!-- Main Question Screen -->
+        <div id="question-screen" class="flex flex-col items-center justify-center">
+            <h1 class="text-5xl md:text-7xl font-bold mb-8 text-center fancy-text text-rose-800">
+                Will you be my Valentine, Kuchu? 💖
+            </h1>
+
+            <div class="gif-container mb-10">
+                <img id="gif-image" src="https://media.tenor.com/gUiu1zyxfzYAAAAi/bear-kiss-bear-kisses.gif" alt="Cute GIF" class="w-80 h-80 md:w-96 md:h-96 object-cover">
+            </div>
+            <div class="flex gap-6 items-center">
+                <button id="yes-button"
+                    class="body-text bg-gradient-to-r from-rose-400 to-pink-500 text-white font-bold py-4 px-12 rounded-full text-2xl transition-all duration-300 hover:shadow-2xl hover:scale-105">
+                    Yes! 💕
+                </button>
+                <button id="no-button"
+                    class="body-text bg-gray-300 text-gray-700 font-bold py-3 px-10 rounded-full text-xl transition-all duration-300 hover:bg-gray-400">
+                    No
+                </button>
+            </div>
+        </div>
+        <!-- Bye Screen (Black Screen) -->
+        <div id="bye-screen" class="black-screen hidden">
+            <h1 class="text-6xl md:text-8xl font-bold mb-12 fancy-text text-white">
+                bye! 💔
+            </h1>
+            <button id="second-chance-button"
+                class="body-text bg-rose-500 text-white font-semibold py-2 px-6 rounded-full text-sm hover:bg-rose-600 transition-all">
+                sorry, need a second chance 🥺
+            </button>
+        </div>
+        <!-- Success Screen -->
+        <div id="success-screen" class="flex flex-col items-center justify-center hidden fade-in">
+            <div class="text-9xl mb-8">
+                😘
+            </div>
+            <h1 class="text-6xl md:text-7xl font-bold mb-4 text-center fancy-text text-rose-800">
+                Yayyyyy
+            </h1>
+            <p class="text-4xl md:text-5xl font-semibold text-center fancy-text text-rose-700">
+                See youuuu 💕
+            </p>
+        </div>
+    </div>
+    <script>
+        let noClickCount = 0;
+        let secondChance = false;
+        const yesButton = document.getElementById('yes-button');
+        const noButton = document.getElementById('no-button');
+        const gifImage = document.getElementById('gif-image');
+        const questionScreen = document.getElementById('question-screen');
+        const byeScreen = document.getElementById('bye-screen');
+        const successScreen = document.getElementById('success-screen');
+        const secondChanceButton = document.getElementById('second-chance-button');
+        // GIF URLs - Using Tenor GIFs (cute bear theme)
+        const gifPaths = {
+            initial: 'https://media.tenor.com/gUiu1zyxfzYAAAAi/bear-kiss-bear-kisses.gif',
+            firstNo: 'https://media.tenor.com/SsHL0xobNiYAAAAi/milk-and-mocha-bear-couple.gif',
+            secondNo: 'https://media.tenor.com/B_zYdskDO3MAAAAi/sad-crying.gif',
+            thirdNo: 'https://media.tenor.com/tczN6lKDD1kAAAAi/milk-and-mocha-cute.gif',
+            success: 'https://media.tenor.com/gUiu1zyxfzYAAAAi/bear-kiss-bear-kisses.gif'
+        };
+        // Handle No button clicks
+        noButton.addEventListener('click', () => {
+            noClickCount++;
+            if (noClickCount === 1) {
+                // First No: smaller no button, yes button with heart backdrop
+                noButton.style.transform = 'scale(0.85)';
+                yesButton.classList.add('heart-backdrop', 'button-glow');
+                gifImage.src = gifPaths.firstNo;
+            } else if (noClickCount === 2) {
+                // Second No: even smaller no button, stronger heart effect on yes
+                noButton.style.transform = 'scale(0.7)';
+                yesButton.classList.remove('heart-backdrop');
+                yesButton.classList.add('heart-backdrop-strong', 'button-glow');
+                yesButton.style.transform = 'scale(1.2)';
+                gifImage.src = gifPaths.secondNo;
+            } else if (noClickCount === 3) {
+                // Third No: change text with angry emoji
+                noButton.innerHTML = 'Aur nakhre kar le tu 😠';
+                noButton.style.transform = 'scale(0.6)';
+                yesButton.style.transform = 'scale(1.4)';
+                gifImage.src = gifPaths.thirdNo;
+            } else if (noClickCount === 4) {
+                // Fourth No: show bye screen
+                questionScreen.classList.add('hidden');
+                byeScreen.classList.remove('hidden');
+            }
+        });
+        // Handle second chance button
+        secondChanceButton.addEventListener('click', () => {
+            secondChance = true;
+            byeScreen.classList.add('hidden');
+            questionScreen.classList.remove('hidden');
+
+            // Reset and hide No button
+            noButton.style.display = 'none';
+            gifImage.src = gifPaths.initial;
+
+            // Reset yes button styling
+            yesButton.classList.remove('heart-backdrop', 'heart-backdrop-strong', 'button-glow');
+            yesButton.style.transform = 'scale(1.5)';
+            yesButton.classList.add('button-glow');
+        });
+        // Handle Yes button click
+        yesButton.addEventListener('click', () => {
+            // Hide question screen
+            questionScreen.classList.add('hidden');
+
+            // Show success screen
+            successScreen.classList.remove('hidden');
+
+            // Trigger confetti
+            const duration = 3000;
+            const end = Date.now() + duration;
+            const colors = ['#ff9a9e', '#fecfef', '#fcb69f', '#ffecd2', '#ff6b9d'];
+            (function frame() {
+                confetti({
+                    particleCount: 3,
+                    angle: 60,
+                    spread: 55,
+                    origin: { x: 0 },
+                    colors: colors,
+                    shapes: ['circle'],
+                    scalar: 1.2
+                });
+                confetti({
+                    particleCount: 3,
+                    angle: 120,
+                    spread: 55,
+                    origin: { x: 1 },
+                    colors: colors,
+                    shapes: ['circle'],
+                    scalar: 1.2
+                });
+                if (Date.now() < end) {
+                    requestAnimationFrame(frame);
+                }
+            }());
+            // Extra burst after 1 second
+            setTimeout(() => {
+                confetti({
+                    particleCount: 100,
+                    spread: 70,
+                    origin: { y: 0.6 },
+                    colors: colors,
+                    shapes: ['circle'],
+                    scalar: 1.5
+                });
+            }, 1000);
+        });
+    </script>
+</body>
+</html>
