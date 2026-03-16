@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#2c1a0e" />
+  <title>CafeKasol</title>
+  <link rel="manifest" href="manifest.json" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header>
+    <h1>&#9749; CafeKasol</h1>
+    <p id="status-msg">Locating you...</p>
+  </header>
+
+  <main>
+    <section id="search-bar">
+      <input type="text" id="search-input" placeholder="Search cafes..." autocomplete="off" />
+    </section>
+
+    <section id="filter-bar">
+      <button class="filter-btn active" data-filter="all">All</button>
+      <button class="filter-btn" data-filter="wifi">WiFi</button>
+      <button class="filter-btn" data-filter="veg">Veg</button>
+      <button class="filter-btn" data-filter="river-view">River View</button>
+      <button class="filter-btn" data-filter="open-now">Open Now</button>
+    </section>
+
+    <section id="cafe-list">
+      <div id="loading" class="loading-spinner">Finding nearby cafes...</div>
+    </section>
+  </main>
+
+  <!-- Cafe detail bottom sheet -->
+  <div id="detail-sheet" class="sheet hidden">
+    <div class="sheet-handle"></div>
+    <div id="sheet-content"></div>
+  </div>
+  <div id="overlay" class="hidden"></div>
+
+  <script type="module" src="app.js"></script>
+</body>
+</html>
