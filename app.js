@@ -1,23 +1,20 @@
 /**
  * app.js — Main application logic
- * Works offline: fetches from backend when available, falls back to cached data.
+ * Loads cafe data from cafes.json — no backend required.
  */
 
 import { getCurrentPosition, haversine } from './geo.js';
 import { renderCafeList, renderDetail, isOpenNow } from './ui.js';
 
-const API_BASE = window.location.hostname === 'localhost'
-  ? 'http://localhost:8000/api/v1'
-  : '/api/v1';
 const CACHE_KEY = 'cafekasol_cafes';
 
-const statusMsg   = document.getElementById('status-msg');
-const cafeList    = document.getElementById('cafe-list');
-const searchInput = document.getElementById('search-input');
-const filterBtns  = document.querySelectorAll('.filter-btn');
-const detailSheet = document.getElementById('detail-sheet');
+const statusMsg    = document.getElementById('status-msg');
+const cafeList     = document.getElementById('cafe-list');
+const searchInput  = document.getElementById('search-input');
+const filterBtns   = document.querySelectorAll('.filter-btn');
+const detailSheet  = document.getElementById('detail-sheet');
 const sheetContent = document.getElementById('sheet-content');
-const overlay     = document.getElementById('overlay');
+const overlay      = document.getElementById('overlay');
 
 let allCafes = [];
 let userLat = null;
@@ -44,23 +41,18 @@ async function locateUser() {
   }
 }
 
-// ── Data loading ──────────────────────────────────
+// ── Data loading from cafes.json ──────────────────
 async function loadCafes() {
   let cafes = null;
 
   try {
-    const url = userLat != null
-      ? `${API_BASE}/cafes/nearby?lat=${userLat}&lon=${userLon}&radius=5`
-      : `${API_BASE}/cafes`;
-
-    const res = await fetch(url, { signal: AbortSignal.timeout(5000) });
+    const res = await fetch('/cafes.json', { signal: AbortSignal.timeout(5000) });
     if (res.ok) {
       cafes = await res.json();
       localStorage.setItem(CACHE_KEY, JSON.stringify(cafes));
-      statusMsg.textContent = userLat ? `${cafes.length} cafes nearby` : `${cafes.length} cafes`;
     }
   } catch {
-    // offline — try cache
+    // offline — use cached data
     const cached = localStorage.getItem(CACHE_KEY);
     if (cached) {
       cafes = JSON.parse(cached);
@@ -73,13 +65,16 @@ async function loadCafes() {
     return;
   }
 
-  // Attach client-side distance if backend didn't provide it
+  // Calculate distance and sort by nearest
   if (userLat != null) {
     cafes = cafes.map(c => ({
       ...c,
-      distance: c.distance ?? haversine(userLat, userLon, c.lat, c.lon),
+      distance: haversine(userLat, userLon, c.lat, c.lon),
     }));
     cafes.sort((a, b) => a.distance - b.distance);
+    statusMsg.textContent = `${cafes.length} cafes nearby`;
+  } else {
+    statusMsg.textContent = `${cafes.length} cafes in Kasol`;
   }
 
   allCafes = cafes;
