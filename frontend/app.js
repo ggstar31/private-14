@@ -6,7 +6,9 @@
 import { getCurrentPosition, haversine } from './geo.js';
 import { renderCafeList, renderDetail, isOpenNow } from './ui.js';
 
-const API_BASE = 'http://localhost:8000/api/v1';
+const API_BASE = window.location.hostname === 'localhost'
+  ? 'http://localhost:8000/api/v1'
+  : '/api/v1';
 const CACHE_KEY = 'cafekasol_cafes';
 
 const statusMsg   = document.getElementById('status-msg');
