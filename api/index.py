@@ -5,6 +5,7 @@ Cafe data is embedded directly (no SQLite needed on Vercel).
 
 from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
+from mangum import Mangum
 import math
 
 app = FastAPI()
@@ -89,3 +90,5 @@ def cafes_list():
 @app.get("/health")
 def health():
     return {"status": "ok"}
+
+handler = Mangum(app)
